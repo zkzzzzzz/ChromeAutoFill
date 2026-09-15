@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>SmartFill - Rule Settings</title>
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --card: #ffffff;
+    --border: #e2e5ea;
+    --text: #1c1f26;
+    --muted: #6b7280;
+    --accent: #4f46e5;
+    --accent-hover: #4338ca;
+    --danger: #dc2626;
+    --danger-bg: #fef2f2;
+    --success: #15803d;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    margin: 0;
+    padding: 28px 32px 40px;
+    width: 720px;
+    background: var(--bg);
+    color: var(--text);
+  }
+  .app-header { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+  .app-header .logo {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent), #818cf8);
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 700; font-size: 14px; flex-shrink: 0;
+  }
+  h1 { font-size: 18px; margin: 0; }
+  p.hint {
+    font-size: 13px; color: var(--muted); line-height: 1.5;
+    margin: 10px 0 20px; max-width: 640px;
+  }
+  p.hint code {
+    background: #eef2ff; color: var(--accent);
+    padding: 1px 5px; border-radius: 4px; font-size: 12px;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+
+  .rules-head {
+    display: grid;
+    grid-template-columns: 1.6fr 1.6fr 1.2fr 40px;
+    gap: 10px;
+    padding: 10px 14px;
+    background: #fafafa;
+    border-bottom: 1px solid var(--border);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+  }
+
+  #rulesBody { display: flex; flex-direction: column; }
+
+  .rule-row {
+    display: grid;
+    grid-template-columns: 1.6fr 1.6fr 1.2fr 40px;
+    gap: 10px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    align-items: center;
+  }
+  .rule-row:last-child { border-bottom: none; }
+  .rule-row:hover { background: #fafbff; }
+
+  input[type="text"] {
+    width: 100%;
+    padding: 7px 9px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    font-size: 13px;
+    font-family: inherit;
+    background: #fff;
+    transition: border-color 0.15s;
+  }
+  input[type="text"]:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+  }
+  input.selector { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px; }
+
+  .del-btn {
+    width: 28px; height: 28px;
+    border: none; border-radius: 7px;
+    background: transparent;
+    color: var(--muted);
+    font-size: 15px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s, color 0.15s;
+  }
+  .del-btn:hover { background: var(--danger-bg); color: var(--danger); }
+
+  .empty-state {
+    padding: 28px 14px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .toolbar { display: flex; align-items: center; gap: 10px; }
+  button.primary, button.secondary {
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: background 0.15s, transform 0.05s;
+  }
+  button.primary { background: var(--accent); color: white; }
+  button.primary:hover { background: var(--accent-hover); }
+  button.primary:active { transform: scale(0.98); }
+  button.secondary { background: #fff; color: var(--text); border-color: var(--border); }
+  button.secondary:hover { background: #f3f4f6; }
+
+  #status {
+    font-size: 13px;
+    color: var(--success);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  #status.show { opacity: 1; }
+</style>
+</head>
+<body>
+  <div class="app-header">
+    <div class="logo">S</div>
+    <h1>SmartFill — Question Matching Rules</h1>
+  </div>
+  <p class="hint">
+    Each rule fills a value into a matching input field. Give a <b>CSS selector</b> when you
+    know the field's exact id (e.g. <code>#kba1_response</code>) — that's checked first and is
+    the most reliable. Otherwise, leave it blank and use a <b>match keyword</b>: SmartFill scans
+    nearby text (labels, placeholders, or a preceding question) for it, case-insensitively.
+    A rule needs at least one of the two. Existing values are never overwritten.
+  </p>
+
+  <div class="card">
+    <div class="rules-head">
+      <div>Match keyword</div>
+      <div>CSS selector (optional)</div>
+      <div>Value to fill in</div>
+      <div></div>
+    </div>
+    <div id="rulesBody"></div>
+  </div>
+
+  <div class="toolbar">
+    <button id="addRow" class="secondary">+ Add rule</button>
+    <button id="save" class="primary">Save</button>
+    <span id="status">✓ Saved</span>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>

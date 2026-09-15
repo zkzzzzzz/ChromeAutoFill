@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "SmartFill",
+  "version": "1.0",
+  "description": "Automatically fills in answers to security/knowledge-based-auth questions based on the question text on the page. Rules are managed entirely from the options page — no rebuild needed.",
+  "permissions": ["storage"],
+  "options_page": "options.html",
+  "action": {
+    "default_title": "SmartFill - click to open settings"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle",
+      "all_frames": true
+    }
+  ]
+}
